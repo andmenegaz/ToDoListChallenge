@@ -1,0 +1,79 @@
+@import '~roboto-fontface/css/roboto/roboto-fontface.css';
+body {
+    color: #222;
+    background: #0d2636;
+    font-size: 14px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+}
+
+a {
+    outline: 0;
+    border: 0;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: 0.2ms;
+}
+
+a:hover {
+    opacity: 0.8;
+}
+
+button {
+    outline: 0;
+    border: 0;
+    border-radius: 4px;
+}
+
+.input-div {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 10px;
+}
+
+.input-label {
+    display: none;
+}
+
+.has-success {
+    color: #28a745;
+}
+
+.has-error {
+    color: #dd4b39;
+}
+
+input {
+    color: #222;
+    text-indent: 10px;
+    height: 32px;
+}
+
+.sshow {
+    display: flex;
+}
+
+.hhidden {
+    display: none;
+}
+
+.mmodal {
+    margin: auto;
+    top: 30px;
+    bottom: 0;
+    left: 300px;
+    width: 500px;
+}
+
+.mmodal-body {
+    background: #fff;
+    margin: 40px;
+    padding: 20px;
+}
+
+.mmodal-background {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
