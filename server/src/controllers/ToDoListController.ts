@@ -18,7 +18,7 @@ class MailResponse {
         public did_you_mean: string,
         public format_valid: boolean,
         public mx_found: boolean
-    ){}
+    ) { }
 }
 
 export default class ToDoListController {
@@ -117,7 +117,16 @@ export default class ToDoListController {
             })
     }
 
-     async teste(request: Request, response: Response) {
+    async teste(request: Request, response: Response) {
         //
-     }
+    }
+
+    async count(request: Request, response: Response) {
+        await knex('todolist').where('status', 0).count()
+            .then(resp => {
+                return response.json(resp[0]['count(*)']);
+            }).catch(error => {
+                return response.json(error);
+            })
+    }
 }

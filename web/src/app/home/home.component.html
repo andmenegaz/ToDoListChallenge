@@ -7,7 +7,7 @@
         <a [routerLink]="['/task']" title="Incluir Nova Task"><i class="fa fa-plus"></i></a>
     </div>
     <ul>
-        <li *ngFor="let task of toDoList ">
+        <li *ngFor="let task of toDoList$ | async ">
             <div class="check-icon">
                 <a (click)="checkStatus(task)" title="Marcar Como Feito" *ngIf="this.status==0"><i class="fa fa-square"></i></a>
                 <a (click)="checkStatus(task)" title="Marcar Como Em Aberto" *ngIf="this.status!=0"><i class="fa fa-check-square"></i></a>

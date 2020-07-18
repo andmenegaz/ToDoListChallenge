@@ -37,4 +37,8 @@ export class TodoListService {
     return this.http.get<CatFacts[]>(CAT_API)
   }
 
+  getPollingCount() : Observable<Number> {
+    return this.http.get<Number>(`${APP_API}/count`)
+  }
+
 }

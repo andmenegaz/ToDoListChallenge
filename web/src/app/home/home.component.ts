@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { TodoListService } from '../shared/todolist.service'
 import { ToDoList, CatFacts } from '../shared/todolist.model';
 import { FormBuilder, AbstractControl } from '@angular/forms'
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { BehaviorSubject, timer, Observable, concat } from 'rxjs';
+import { switchMap, concatMap } from 'rxjs/operators';
+import { map } from 'rxjs-compat/operator/map';
 
 
 @Component({
@@ -11,20 +13,31 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-
+  lastCount: number = 0;
+  
   status: number = 0
-  toDoList: ToDoList[]
+  toDoList$: Observable<ToDoList[]>
 
   constructor(private toDoListService: TodoListService,
     private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-    this.loadTasks()
+    const count$ = this.toDoListService.getPollingCount()
+
+    timer(0, 3000)
+        .pipe(concatMap(() => count$))
+        .subscribe((count:number) => {
+          if (count !== this.lastCount){
+            this.lastCount = count;
+            this.loadTasks()
+          }
+        })
+
+    this.loadTasks();
   }
 
   loadTasks(): void {
-    this.toDoListService.todolist(this.status)
-      .subscribe(toDoList => this.toDoList = toDoList)
+    this.toDoList$ = this.toDoListService.todolist(this.status)
   }
 
   changeStatus(status: number) {
