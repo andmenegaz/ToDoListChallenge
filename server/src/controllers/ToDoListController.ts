@@ -12,6 +12,15 @@ class ToDoList {
     ) { }
 }
 
+class MailResponse {
+    constructor(
+        public email: string,
+        public did_you_mean: string,
+        public format_valid: boolean,
+        public mx_found: boolean
+    ){}
+}
+
 export default class ToDoListController {
     async show(request: Request, response: Response) {
         const { id } = request.params
@@ -107,4 +116,8 @@ export default class ToDoListController {
                 return response.json(error);
             })
     }
+
+     async teste(request: Request, response: Response) {
+        //
+     }
 }

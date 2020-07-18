@@ -46,6 +46,8 @@ button:disabled {
     opacity: 0.5;
 }
 
+span {}
+
 @media (max-width: 500px) {
     .in-charge {
         flex-direction: column;

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { TodoListService } from '../shared/todolist.service'
-import { ToDoList } from '../shared/todolist.model';
-import { FormGroup, FormBuilder, Validators, AbstractControl, FormControl } from '@angular/forms'
+import { ToDoList, CatFacts } from '../shared/todolist.model';
+import { FormBuilder, AbstractControl } from '@angular/forms'
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 
 @Component({
@@ -14,7 +15,7 @@ export class HomeComponent implements OnInit {
   status: number = 0
   toDoList: ToDoList[]
 
-  constructor(private TodoListService: TodoListService,
+  constructor(private toDoListService: TodoListService,
     private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
@@ -22,7 +23,7 @@ export class HomeComponent implements OnInit {
   }
 
   loadTasks(): void {
-    this.TodoListService.todolist(this.status)
+    this.toDoListService.todolist(this.status)
       .subscribe(toDoList => this.toDoList = toDoList)
   }
 
@@ -32,12 +33,11 @@ export class HomeComponent implements OnInit {
   }
 
   delete(taskId: number) {
-    this.TodoListService.deleteTask(taskId)
+    this.toDoListService.deleteTask(taskId)
       .subscribe(() => this.loadTasks())
   }
 
   checkStatus(task: ToDoList) {
-    console.log(task)
     if (task.status == 0) {
       task.status = 1
       this.updateStatus(task);
@@ -53,7 +53,7 @@ export class HomeComponent implements OnInit {
           task.status = 0
           this.updateStatus(task);
         }
-        else{
+        else {
           alert('Invalid Password');
         }
       }
@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit {
   }
 
   updateStatus(task: ToDoList) {
-    this.TodoListService.updateTask(task)
+    this.toDoListService.updateTask(task)
       .subscribe(() => this.loadTasks())
   }
 
@@ -71,5 +71,27 @@ export class HomeComponent implements OnInit {
       return { passwordInvalid: true }
     }
     return undefined;
+  }
+
+  getFacts() {
+    let taskTemp: ToDoList = {
+      id: 0,
+      title: "",
+      name: "Eu",
+      email: "eu@me.com",
+      status: 0,
+      changescount: 0
+    }
+
+    this.toDoListService.getFacts()
+      .subscribe((response: CatFacts[]) => {
+        response.map(fact => {
+          taskTemp.title = fact.text
+
+          this.toDoListService.createTask(taskTemp)
+            .subscribe((taskId: String) => {})
+        })
+        this.loadTasks();
+      })
   }
 }

@@ -14,5 +14,7 @@ routes.put('/todolist', toDoListController.update)
 
 routes.delete('/todolist/:id', toDoListController.delete)
 
+//routes.get('/teste', toDoListController.teste)
+
 
 export default routes
