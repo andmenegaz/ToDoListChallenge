@@ -1,0 +1,20 @@
+<div class="header">
+    <a [routerLink]="['/']"><i class="fa fa-arrow-left"></i></a>
+    <h1>New Task Item</h1>
+</div>
+<form [formGroup]="taskForm" novalidate autocomplete="off">
+    <input autocomplete="off" name="hidden" type="text" style="display:none;">
+    <app-input-component errorMessage="Campo Obrigatório" label="Title">
+        <input formControlName="title" placeholder="Title">
+    </app-input-component>
+    <div class="in-charge">
+        <app-input-component class="in-charge-input" errorMessage="Campo Obrigatório" label="Name">
+            <input formControlName="name" placeholder="Name" autocomplete="off">
+        </app-input-component>
+        <app-input-component class="in-charge-input" [errorMessage]="emailErrormessage()" label="Email">
+            <input formControlName="email" placeholder="Email" autocomplete="off">
+        </app-input-component>
+    </div>
+
+    <button type="submit" [disabled]="!taskForm.valid" (click)="save(taskForm.value)">Save</button>
+</form>

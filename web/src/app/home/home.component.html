@@ -1,0 +1,23 @@
+<div class="content">
+    <h1 class="title">Task List</h1>
+    <div class="actions">
+        <button (click)="changeStatus(0)" [disabled]="this.status==0">Open</button>
+        <button (click)="changeStatus(1)" [disabled]="this.status!=0">Closed</button>
+        <button (click)="getFacts()" *ngIf="this.status==0">Estou Sem Tarefas</button>
+        <a [routerLink]="['/task']" title="Incluir Nova Task"><i class="fa fa-plus"></i></a>
+    </div>
+    <ul>
+        <li *ngFor="let task of toDoList$ | async ">
+            <div class="check-icon">
+                <a (click)="checkStatus(task)" title="Marcar Como Feito" *ngIf="this.status==0"><i class="fa fa-square"></i></a>
+                <a (click)="checkStatus(task)" title="Marcar Como Em Aberto" *ngIf="this.status!=0"><i class="fa fa-check-square"></i></a>
+            </div>
+            <strong class="task-title ">{{task.title}}</strong>
+            <div class="task-in-charge">
+                <p>{{task.name}}</p>
+                <p>{{task.email}}</p>
+            </div>
+            <div class="check-icon"><a (click)="delete(task.id)" title="Excluir"><i class="fa fa-trash"></i></a></div>
+        </li>
+    </ul>
+</div>
