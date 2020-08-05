@@ -80,6 +80,7 @@ ul li {
 }
 
 .modal-div {
+    background-color: white;
     height: 10em;
     display: flex;
     flex-direction: column;

@@ -24,15 +24,19 @@ export class TodoListService {
     return this.http.delete<String>(`${APP_API}/todolist/${taskId}`)
   }
 
-  updateTask(task: ToDoList): Observable<String> {
-    return this.http.put<String>(`${APP_API}/todolist`, task)
+  updateTask(task: ToDoList, password: string): Observable<String> {
+    return this.http.put<String>(`${APP_API}/todolist`, task, {
+      headers: {
+        Authorization: password
+      }
+    })
   }
 
-  getFacts() : Observable<String> {
+  getFacts(): Observable<String> {
     return this.http.post<String>(`${APP_API}/getfacts`, null)
   }
 
-  getPollingCount() : Observable<Number> {
+  getPollingCount(): Observable<Number> {
     return this.http.get<Number>(`${APP_API}/count`)
   }
 

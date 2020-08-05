@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   api: 'http://localhost:3333',
-  mail_key: 'e5eb049408b4d6ca8f391828576ebacd'
+  mail_key: 'e5eb049408b4d6ca8f391828576ebacd',
+  wsApi: 'ws://localhost:3333'
 };
 
 /*

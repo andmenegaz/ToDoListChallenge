@@ -73,6 +73,8 @@ export default class ToDoListController {
     }
 
     async update(request: Request, response: Response) {
+        const password = request.headers?.authorization
+
         const {
             id,
             title,
@@ -88,7 +90,15 @@ export default class ToDoListController {
         }
         else {
             if (task.status == 1 && status == 0) {
-                task.changescount += 1;
+                if (task.changescount >= 2){
+                    return response.status(400).json("Changes limit exceeded");
+                }
+                else if (password !== "TrabalheNaSaipos") {
+                    return response.status(403).json("Wrong Password");
+                }
+                else{
+                    task.changescount += 1;
+                }
             }
 
             let taskUpdate = {

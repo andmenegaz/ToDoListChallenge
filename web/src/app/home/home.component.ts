@@ -7,6 +7,7 @@ import { catchError, tap, switchAll, retryWhen, delayWhen, distinct } from 'rxjs
 import { NotificationService } from '../shared/notification.service';
 import { ModalService } from '../modal/modal.service';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { WS_API } from '../app.api';
 
 
 @Component({
@@ -41,7 +42,7 @@ export class HomeComponent implements OnInit {
 
   private getNewWebSocket() {
     return webSocket({
-      url: 'ws://localhost:3333',
+      url: WS_API,
       closeObserver: {
         next: () => {
           console.log('[DataService]: connection closed');
@@ -106,21 +107,15 @@ export class HomeComponent implements OnInit {
 
   checkPassword() {
     if (this.password !== null) {
-
-      if (this.password == "TrabalheNaSaipos") {
         this.taskTmp.status = 0
-        this.updateStatus(this.taskTmp);
-      }
-      else {
-        this.notificationService.notify(`Password Inválido`)
-      }
+        this.updateStatus(this.taskTmp, this.password);
     }
     this.password = ""
     this.closeModal('modal')
   }
 
-  updateStatus(task: ToDoList) {
-    this.toDoListService.updateTask(task)
+  updateStatus(task: ToDoList, password?: string) {
+    this.toDoListService.updateTask(task, password)
       .subscribe(() => { })
   }
 
