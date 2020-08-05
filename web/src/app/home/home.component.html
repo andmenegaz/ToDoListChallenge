@@ -20,4 +20,11 @@
             <div class="check-icon"><a (click)="delete(task.id)" title="Excluir"><i class="fa fa-trash"></i></a></div>
         </li>
     </ul>
+    <jw-modal id="modal">
+        <div class="modal-div">
+            <p>Autorização Necessária:</p>
+            <input type="password" [(ngModel)]="password" />
+            <button class="modal-button" (click)="checkPassword()">Close</button>
+        </div>
+    </jw-modal>
 </div>

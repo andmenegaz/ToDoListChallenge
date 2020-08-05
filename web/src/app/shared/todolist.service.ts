@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core"
 import { HttpClient, HttpParams } from '@angular/common/http'
-import { APP_API, MAIL_API, CAT_API } from "../app.api"
+import { APP_API } from "../app.api"
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/catch'
 import { Observable } from "rxjs"
-import { ToDoList, MailResponse, CatFacts } from './todolist.model'
+import { ToDoList } from './todolist.model'
 
 @Injectable()
 export class TodoListService {
@@ -28,13 +28,8 @@ export class TodoListService {
     return this.http.put<String>(`${APP_API}/todolist`, task)
   }
 
-  verifyEmail (email: string): Observable<MailResponse> {
-    return this.http.get<MailResponse>(`${MAIL_API}&email=${email}`)
-    //return this.http.get<MailResponse>(`${APP_API}/teste?email=${email}`)
-  }
-
-  getFacts() : Observable<CatFacts[]> {
-    return this.http.get<CatFacts[]>(CAT_API)
+  getFacts() : Observable<String> {
+    return this.http.post<String>(`${APP_API}/getfacts`, null)
   }
 
   getPollingCount() : Observable<Number> {

@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  api: 'http://localhost:3001',
-  mail_key: 'f20f7ae318c34b92ee6a685fac758feb'
+  api: 'http://192.168.0.117:3333',
+  mail_key: 'e5eb049408b4d6ca8f391828576ebacdng '
 };

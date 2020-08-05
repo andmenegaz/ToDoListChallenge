@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { TodoListService } from '../shared/todolist.service'
-import { ToDoList, CatFacts } from '../shared/todolist.model';
-import { FormBuilder, AbstractControl } from '@angular/forms'
-import { BehaviorSubject, timer, Observable, concat } from 'rxjs';
-import { switchMap, concatMap } from 'rxjs/operators';
-import { map } from 'rxjs-compat/operator/map';
+import { ToDoList } from '../shared/todolist.model';
+import { FormBuilder } from '@angular/forms'
+import { Observable, Subject, EMPTY, timer, of } from 'rxjs';
+import { catchError, tap, switchAll, retryWhen, delayWhen, distinct } from 'rxjs/operators';
+import { NotificationService } from '../shared/notification.service';
+import { ModalService } from '../modal/modal.service';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 
 @Component({
@@ -13,27 +15,65 @@ import { map } from 'rxjs-compat/operator/map';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+
+  private socket$: WebSocketSubject<any>
+  private messagesSubject$ = new Subject();
+  public messages$ = this.messagesSubject$.pipe(switchAll(), catchError(e => { throw e }));
+
+  taskTmp: ToDoList;
   lastCount: number = 0;
-  
+
   status: number = 0
   toDoList$: Observable<ToDoList[]>
 
+  password: string;
+
   constructor(private toDoListService: TodoListService,
+    private notificationService: NotificationService,
+    private modalService: ModalService,
     private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-    const count$ = this.toDoListService.getPollingCount()
+    this.connect({ reconnect: true })
 
-    timer(0, 3000)
-        .pipe(concatMap(() => count$))
-        .subscribe((count:number) => {
-          if (count !== this.lastCount){
-            this.lastCount = count;
+    this.loadTasks()
+  }
+
+  private getNewWebSocket() {
+    return webSocket({
+      url: 'ws://localhost:3333',
+      closeObserver: {
+        next: () => {
+          console.log('[DataService]: connection closed');
+          this.socket$ = undefined;
+          this.connect({ reconnect: true });
+        }
+      },
+    });
+  }
+
+  private reconnect(observable: Observable<any>): Observable<any> {
+    return observable.pipe(retryWhen(errors => errors.pipe(tap(val => console.log('[Data Service] Try to reconnect', val)),
+      delayWhen(_ => timer(500)))));
+  }
+
+  public connect(cfg: { reconnect: boolean } = { reconnect: false }): void {
+
+
+
+    if (!this.socket$ || this.socket$.closed) {
+      this.socket$ = this.getNewWebSocket();
+      const messages = this.socket$.pipe(cfg.reconnect ? this.reconnect : o => o,
+        tap({
+          error: error => console.log(error),
+        }), catchError(_ => EMPTY))
+        .subscribe((message: any) => {
+          if (message == "todolist") {
             this.loadTasks()
           }
-        })
-
-    this.loadTasks();
+        });
+      this.messagesSubject$.next(messages);
+    }
   }
 
   loadTasks(): void {
@@ -47,7 +87,7 @@ export class HomeComponent implements OnInit {
 
   delete(taskId: number) {
     this.toDoListService.deleteTask(taskId)
-      .subscribe(() => this.loadTasks())
+      .subscribe(() => { })
   }
 
   checkStatus(task: ToDoList) {
@@ -56,55 +96,44 @@ export class HomeComponent implements OnInit {
       this.updateStatus(task);
     }
     else if (task.changescount >= 2) {
-      alert("Changes limit exceeded")
+      this.notificationService.notify("Changes limit exceeded")
     }
     else {
-      let password = prompt("Enter Password : ", "Supervisor's Password");
-      if (password !== null) {
+      this.taskTmp = task;
+      this.openModal('modal')
+    }
+  }
 
-        if (password == "TrabalheNaSaipos") {
-          task.status = 0
-          this.updateStatus(task);
-        }
-        else {
-          alert('Invalid Password');
-        }
+  checkPassword() {
+    if (this.password !== null) {
+
+      if (this.password == "TrabalheNaSaipos") {
+        this.taskTmp.status = 0
+        this.updateStatus(this.taskTmp);
+      }
+      else {
+        this.notificationService.notify(`Password Inválido`)
       }
     }
+    this.password = ""
+    this.closeModal('modal')
   }
 
   updateStatus(task: ToDoList) {
     this.toDoListService.updateTask(task)
-      .subscribe(() => this.loadTasks())
-  }
-
-  static checkPassword(group: AbstractControl): { [key: string]: boolean } {
-    let password = group.get('password');
-    if (password.value !== "TrabalheNaSaipos") {
-      return { passwordInvalid: true }
-    }
-    return undefined;
+      .subscribe(() => { })
   }
 
   getFacts() {
-    let taskTemp: ToDoList = {
-      id: 0,
-      title: "",
-      name: "Eu",
-      email: "eu@me.com",
-      status: 0,
-      changescount: 0
-    }
-
     this.toDoListService.getFacts()
-      .subscribe((response: CatFacts[]) => {
-        response.map(fact => {
-          taskTemp.title = fact.text
+      .subscribe((response: String) => { })
+  }
 
-          this.toDoListService.createTask(taskTemp)
-            .subscribe((taskId: String) => {})
-        })
-        this.loadTasks();
-      })
+  openModal(id: string) {
+    this.modalService.open(id);
+  }
+
+  closeModal(id: string) {
+    this.modalService.close(id);
   }
 }

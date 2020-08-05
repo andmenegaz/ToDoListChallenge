@@ -9,19 +9,4 @@ class ToDoList {
     ){}
 }
 
-class MailResponse {
-    constructor(
-        public email: string,
-        public did_you_mean: string,
-        public format_valid: boolean,
-        public mx_found: boolean
-    ){}
-}
-
-class CatFacts {
-    constructor(
-        public text: string
-    ){}
-}
-
-export { ToDoList, MailResponse, CatFacts }
+export { ToDoList }

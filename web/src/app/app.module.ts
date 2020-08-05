@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http'
 
 import { AppRoutingModule } from './app-routing.module';
@@ -10,13 +10,22 @@ import { TaskComponent } from './task/task.component'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputComponent } from './shared/input/input.component';
+import { SnackbarComponent } from './shared/snackbar/snackbar.component';
+import { NotificationService } from './shared/notification.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ModalComponent } from './modal/modal.component';
+import { ModalService } from './modal/modal.service';
+import {ApplicationErrorHandler} from './app.error-handler'
+
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     TaskComponent,
-    InputComponent
+    InputComponent,
+    SnackbarComponent,
+    ModalComponent
   ],
   imports: [
     BrowserModule,
@@ -24,9 +33,11 @@ import { InputComponent } from './shared/input/input.component';
     HttpClientModule,
     ReactiveFormsModule,
     CommonModule,
-    FormsModule
+    FormsModule,
+    BrowserAnimationsModule
   ],
-  providers: [TodoListService],
+  providers: [TodoListService, NotificationService, ModalService,
+    { provide: ErrorHandler, useClass: ApplicationErrorHandler}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
