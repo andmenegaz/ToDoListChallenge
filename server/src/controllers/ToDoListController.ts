@@ -1,5 +1,9 @@
+import axios, { AxiosResponse } from 'axios'
 import knex from '../database/connection'
 import { Request, Response } from 'express'
+import WsServer from '../websocket'
+
+const CAT_API = 'https://cat-fact.herokuapp.com/facts/random?animal_type=dog&amount=3'
 
 class ToDoList {
     constructor(
@@ -12,12 +16,9 @@ class ToDoList {
     ) { }
 }
 
-class MailResponse {
+class CatFacts {
     constructor(
-        public email: string,
-        public did_you_mean: string,
-        public format_valid: boolean,
-        public mx_found: boolean
+        public text: string
     ) { }
 }
 
@@ -33,7 +34,6 @@ export default class ToDoListController {
         else {
             return response.json(todolist)
         }
-
     }
 
     async index(request: Request, response: Response) {
@@ -64,12 +64,17 @@ export default class ToDoListController {
 
         await knex('todolist').insert(listItem)
             .then(resp => {
+                WsServer.sendBroadCast("todolist")
+
                 return response.json(resp);
             }).catch(error => {
                 return response.json(error);
             })
     }
+
     async update(request: Request, response: Response) {
+        const password = request.headers?.authorization
+
         const {
             id,
             title,
@@ -85,7 +90,15 @@ export default class ToDoListController {
         }
         else {
             if (task.status == 1 && status == 0) {
-                task.changescount += 1;
+                if (task.changescount >= 2){
+                    return response.status(400).json("Changes limit exceeded");
+                }
+                else if (password !== "TrabalheNaSaipos") {
+                    return response.status(403).json("Wrong Password");
+                }
+                else{
+                    task.changescount += 1;
+                }
             }
 
             let taskUpdate = {
@@ -99,6 +112,8 @@ export default class ToDoListController {
             await knex('todolist').update(taskUpdate)
                 .where('id', id)
                 .then(resp => {
+                    WsServer.sendBroadCast("todolist")
+
                     return response.json(resp);
                 }).catch(error => {
                     return response.json(error);
@@ -111,22 +126,40 @@ export default class ToDoListController {
 
         await knex('todolist').where('id', id).delete()
             .then(resp => {
+                WsServer.sendBroadCast("todolist")
+
                 return response.json(resp);
             }).catch(error => {
                 return response.json(error);
             })
     }
 
-    async teste(request: Request, response: Response) {
-        //
-    }
+    async getFacts(request: Request, response: Response) {
+        await axios.get<CatFacts[]>(`${CAT_API}`)
+            .then((facts: AxiosResponse<CatFacts[]>) => {
+                let tastkTmp = {
+                    title: "",
+                    name: "Eu",
+                    email: "eu@me.com",
+                    status: 0,
+                    changescount: 0,
+                }
 
-    async count(request: Request, response: Response) {
-        await knex('todolist').where('status', 0).count()
-            .then(resp => {
-                return response.json(resp[0]['count(*)']);
-            }).catch(error => {
-                return response.json(error);
+                let taskList = facts.data.map((fact: CatFacts) => {
+                    return {
+                        ...tastkTmp,
+                        title: fact.text
+                    }
+                })
+
+                knex('todolist').insert(taskList)
+                    .then(resp => {
+                        WsServer.sendBroadCast("todolist")
+                        return response.json("Ok")
+                    })
+                    .catch((error) => {
+                        return response.status(400).json(error);
+                    })
             })
     }
 }

@@ -4,7 +4,7 @@
 </div>
 <form [formGroup]="taskForm" novalidate autocomplete="off">
     <input autocomplete="off" name="hidden" type="text" style="display:none;">
-    <app-input-component errorMessage="Campo Obrigatório" label="Title">
+    <app-input-component errorMessage="Mínimo 5 caracteres" label="Title">
         <input formControlName="title" placeholder="Title">
     </app-input-component>
     <div class="in-charge">
